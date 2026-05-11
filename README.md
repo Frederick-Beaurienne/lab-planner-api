@@ -38,6 +38,18 @@ Le système génère :
 
 ## Installation
 
+### Cloner le projet
+
+```bash id="q4"
+git clone https://github.com/Frederick-Beaurienne/lab-planner-api.git
+```
+
+Puis accéder au dossier du projet :
+
+```bash id="q5"
+cd lab-planner-api
+```
+
 ### Prérequis
 
 * Java 21
@@ -60,7 +72,7 @@ http://localhost:8080
 Documentation Swagger disponible sur :
 
 ```text
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ## Utilisation
