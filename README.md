@@ -52,7 +52,7 @@ cd lab-planner-api
 
 ### Prérequis
 
-* Java 21
+* Java 17+
 * Maven 3+
 
 ### Lancer le projet
