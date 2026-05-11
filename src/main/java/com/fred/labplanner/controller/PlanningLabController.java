@@ -2,7 +2,7 @@ package com.fred.labplanner.controller;
 
 import com.fred.labplanner.model.payload.PlanningRequest;
 import com.fred.labplanner.model.payload.PlanningResponse;
-import com.fred.labplanner.service.PlanningService;
+import com.fred.labplanner.service.planning.PlanningService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
