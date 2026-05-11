@@ -1,0 +1,224 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: lab-planner
+meta:
+  id: wrk_0e28f124f3a1461199ab5897d1896a2f
+  created: 1778493284244
+  modified: 1778493284244
+  description: ""
+collection:
+  - url: http://localhost:8080/api/planning
+    name: test 1 - Un Seul Échantillon
+    meta:
+      id: req_00cdacb169114d2b9e080744db562006
+      created: 1778493295570
+      modified: 1778497996670
+      isPrivate: false
+      description: ""
+      sortKey: -1778493295570
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "type": "BLOOD", 
+              "priority": "URGENT",
+              "analysisTime": 30,
+              "arrivalTime": "09:00",
+              "patientId": "P001"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001", 
+              "name": "Alice Martin",
+              "speciality": "BLOOD",
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "name": "Analyseur Sang A",
+              "type": "BLOOD", 
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 2 - Priorités STAT vs URGENT
+    meta:
+      id: req_1f856f46d24e4909b7dd0fb10dad50b3
+      created: 1778498017831
+      modified: 1778498029894
+      isPrivate: false
+      description: ""
+      sortKey: -1745396716912.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "type": "BLOOD",
+              "priority": "URGENT", 
+              "analysisTime": 45,
+              "arrivalTime": "09:00",
+              "patientId": "P001"
+            },
+            {
+              "id": "S002", 
+              "type": "BLOOD",
+              "priority": "STAT",
+              "analysisTime": 30,
+              "arrivalTime": "09:30",
+              "patientId": "P002"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001",
+              "speciality": "BLOOD", 
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "type": "BLOOD",
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 3 - Gestion des Ressources
+    meta:
+      id: req_8a730570273c4509a78769e12ba14e25
+      created: 1778498065939
+      modified: 1778500273881
+      isPrivate: false
+      description: ""
+      sortKey: -1728848427583.75
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001", 
+              "type": "BLOOD",
+              "priority": "URGENT",
+              "analysisTime": 60,
+              "arrivalTime": "09:00", 
+              "patientId": "P001"
+            },
+            {
+              "id": "S002",
+              "type": "URINE", 
+              "priority": "URGENT",
+              "analysisTime": 30,
+              "arrivalTime": "09:15",
+              "patientId": "P002" 
+            },
+            {
+              "id": "S003",
+              "type": "BLOOD",
+              "priority": "ROUTINE", 
+              "analysisTime": 45,
+              "arrivalTime": "09:00",
+              "patientId": "P003"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001",
+              "speciality": "BLOOD",
+              "startTime": "08:00", 
+              "endTime": "17:00"
+            },
+            {
+              "id": "T002", 
+              "speciality": "GENERAL",
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "type": "BLOOD",
+              "available": true
+            },
+            {
+              "id": "E002", 
+              "type": "URINE",
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_f3b17ff5f8e49d05c135c4b26d7d7f3ed7f1af04
+    created: 1778493284247
+    modified: 1778493284247
+environments:
+  name: Base Environment
+  meta:
+    id: env_f3b17ff5f8e49d05c135c4b26d7d7f3ed7f1af04
+    created: 1778493284246
+    modified: 1778493284246
+    isPrivate: false
