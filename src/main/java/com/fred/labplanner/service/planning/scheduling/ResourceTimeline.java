@@ -1,7 +1,10 @@
 package com.fred.labplanner.service.planning.scheduling;
 
+import com.fred.labplanner.model.TimeSlot;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -54,8 +57,7 @@ public class ResourceTimeline {
      * </p>
      *
      * @param start requested start time
-     * @param end requested end time
-     *
+     * @param end   requested end time
      * @return {@code true} if the resource is available during the
      * specified period, {@code false} otherwise
      */
@@ -79,7 +81,7 @@ public class ResourceTimeline {
      * </p>
      *
      * @param start reservation start time
-     * @param end reservation end time
+     * @param end   reservation end time
      */
     public void reserve(
             LocalTime start,
@@ -88,27 +90,37 @@ public class ResourceTimeline {
         occupiedSlots.add(
                 new TimeSlot(start, end)
         );
+
+        // ensure order
+        occupiedSlots.sort(
+                Comparator.comparing(TimeSlot::getStart)
+        );
     }
 
-    /**
-     * Returns the next available time of the resource.
-     *
-     * <p>
-     * The next available time corresponds to the end time of the
-     * latest occupied slot in the timeline.
-     * </p>
-     *
-     * <p>
-     * If no occupied slot exists, {@link LocalTime#MIN} is returned.
-     * </p>
-     *
-     * @return next available time for the resource
-     */
-    public LocalTime getNextAvailableTime() {
+    public LocalTime getNextAvailableTime(
+            LocalTime requestedStart,
+            long durationMinutes
+    ) {
 
-        return occupiedSlots.stream()
-                .map(TimeSlot::getEnd)
-                .max(LocalTime::compareTo)
-                .orElse(LocalTime.MIN);
+        LocalTime candidateStart = requestedStart;
+
+        for (TimeSlot slot : occupiedSlots) {
+
+            LocalTime candidateEnd =
+                    candidateStart.plusMinutes(durationMinutes);
+
+            TimeSlot candidate =
+                    new TimeSlot(
+                            candidateStart,
+                            candidateEnd
+                    );
+
+            if (slot.overlaps(candidate)) {
+
+                candidateStart = slot.getEnd();
+            }
+        }
+
+        return candidateStart;
     }
 }

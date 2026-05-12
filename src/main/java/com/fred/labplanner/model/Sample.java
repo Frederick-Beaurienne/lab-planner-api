@@ -1,5 +1,6 @@
 package com.fred.labplanner.model;
 
+import com.fred.labplanner.model._enum.EAnalysisCategory;
 import com.fred.labplanner.model._enum.EPriority;
 import com.fred.labplanner.model._enum.ESampleType;
 import jakarta.validation.constraints.NotBlank;
@@ -10,94 +11,147 @@ import java.time.LocalTime;
 
 public class Sample {
 
-  @NotBlank
-  private String id;
+    @NotBlank
+    private String id;
 
-  @NotNull
-  private ESampleType type;
+    @NotNull
+    private ESampleType type;
 
-  @NotNull
-  private EPriority priority;
+    private String analysisType; // TODO manage
 
-  @Positive
-  private long analysisTime;
+    @NotNull
+    private EPriority priority;
 
-  @NotNull
-  private LocalTime arrivalTime;
+    @Positive
+    private long analysisTime;
 
-  @NotBlank
-  private String patientId;
+    @NotNull
+    private LocalTime arrivalTime;
 
-  public Sample() {
-  }
+    /**
+     * Patient identifier associated with the sample.
+     *
+     * <p>
+     * Currently not used by the scheduling algorithm,
+     * but kept for domain consistency and future extensions.
+     * </p>
+     */
+    private String patientId;
 
-  public Sample(String id, ESampleType type, EPriority priority, long analysisTime, LocalTime arrivalTime, String patientId) {
-    this.id = id;
-    this.type = type;
-    this.priority = priority;
-    this.analysisTime = analysisTime;
-    this.arrivalTime = arrivalTime;
-    this.patientId = patientId;
-  }
+    // ---------- CACHE ---------- //
 
-  public String getId() {
-    return id;
-  }
+    private EAnalysisCategory analysisCategory;
 
-  public void setId(String id) {
-    this.id = id;
-  }
+    // ---------- CONSTRUCTORS ---------- //
 
-  public ESampleType getType() {
-    return type;
-  }
+    public Sample() {
+    }
 
-  public void setType(ESampleType type) {
-    this.type = type;
-  }
+    public Sample(String id, ESampleType type, EPriority priority, long analysisTime, LocalTime arrivalTime, String patientId) {
+        this.id = id;
+        this.type = type;
+        this.priority = priority;
+        this.analysisTime = analysisTime;
+        this.arrivalTime = arrivalTime;
+        this.patientId = patientId;
+    }
 
-  public EPriority getPriority() {
-    return priority;
-  }
+    public Sample(String id, ESampleType type, String analysisType, EPriority priority, long analysisTime, LocalTime arrivalTime, String patientId) {
+        this.id = id;
+        this.type = type;
+        this.analysisType = analysisType;
+        this.priority = priority;
+        this.analysisTime = analysisTime;
+        this.arrivalTime = arrivalTime;
+        this.patientId = patientId;
+    }
 
-  public void setPriority(EPriority priority) {
-    this.priority = priority;
-  }
+    // ---------- GETTERS AND SETTERS ---------- //
 
-  public long getAnalysisTime() {
-    return analysisTime;
-  }
+    public String getId() {
+        return id;
+    }
 
-  public void setAnalysisTime(long analysisTime) {
-    this.analysisTime = analysisTime;
-  }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-  public LocalTime getArrivalTime() {
-    return arrivalTime;
-  }
+    public ESampleType getType() {
+        return type;
+    }
 
-  public void setArrivalTime(LocalTime arrivalTime) {
-    this.arrivalTime = arrivalTime;
-  }
+    public void setType(ESampleType type) {
+        this.type = type;
+    }
 
-  public String getPatientId() {
-    return patientId;
-  }
+    public String getAnalysisType() {
+        return analysisType;
+    }
 
-  public void setPatientId(String patientId) {
-    this.patientId = patientId;
-  }
+    public void setAnalysisType(String analysisType) {
+        this.analysisType = analysisType;
+    }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("Sample{");
-    sb.append("id='").append(id).append('\'');
-    sb.append(", type=").append(type);
-    sb.append(", priority=").append(priority);
-    sb.append(", analysisTime=").append(analysisTime);
-    sb.append(", arrivalTime=").append(arrivalTime);
-    sb.append(", patientId='").append(patientId).append('\'');
-    sb.append('}');
-    return sb.toString();
-  }
+    public EPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(EPriority priority) {
+        this.priority = priority;
+    }
+
+    public long getAnalysisTime() {
+        return analysisTime;
+    }
+
+    public void setAnalysisTime(long analysisTime) {
+        this.analysisTime = analysisTime;
+    }
+
+    public LocalTime getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public void setArrivalTime(LocalTime arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    // ---------- TO STRING ---------- //
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Sample{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", type=").append(type);
+        sb.append(", analysisType='").append(analysisType).append('\'');
+        sb.append(", priority=").append(priority);
+        sb.append(", analysisTime=").append(analysisTime);
+        sb.append(", arrivalTime=").append(arrivalTime);
+        sb.append(", patientId='").append(patientId).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    // ---------- CLASS METHODE ---------- //
+
+    public EAnalysisCategory resolveAnalysisCategory() {
+
+        if (analysisCategory != null) {
+            return analysisCategory;
+        }
+
+        return switch (type) {
+            case BLOOD -> EAnalysisCategory.BLOOD;
+            case URINE -> EAnalysisCategory.MICROBIOLOGY;
+            case TISSUE -> EAnalysisCategory.MICROBIOLOGY;
+        };
+    }
 }

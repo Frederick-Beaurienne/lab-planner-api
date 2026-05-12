@@ -1,7 +1,6 @@
 package com.fred.labplanner.service.planning.metrics;
 
-import com.fred.labplanner.model.Metrics;
-import com.fred.labplanner.model.ScheduleEntry;
+import com.fred.labplanner.model.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -14,41 +13,45 @@ public class MetricsCalculator {
 
     // ---------- Public methods ---------- //
 
-    /**
-     * Calculates global scheduling metrics for the generated planning.
-     *
-     * <p>
-     * The following metrics are calculated:
-     * </p>
-     *
-     * <ul>
-     *   <li><b>Total time</b> : duration between the first analysis start
-     *   and the last analysis end</li>
-     *
-     *   <li><b>Efficiency</b> : percentage calculated using the formula:
-     *   <br>
-     *   {@code (total analysis duration / total planning duration) * 100}
-     *   </li>
-     *
-     *   <li><b>Conflicts</b> : number of detected technician or equipment
-     *   scheduling overlaps</li>
-     * </ul>
-     *
-     * <p>
-     * Efficiency may exceed 100% when multiple analyses are processed
-     * in parallel.
-     * </p>
-     *
-     * @param schedule generated planning schedule
-     * @return calculated planning metrics
-     */
-    public Metrics calculateMetrics(List<ScheduleEntry> schedule) {
+    public Metrics calculateMetrics(List<ScheduleEntry> schedule,
+                                    List<Technician> technicians,
+                                    List<Sample> samples) {
+        Metrics metrics = new Metrics();
 
         // prevent NoSuchElementException on min/max operations
         if (schedule.isEmpty()) {
-            return new Metrics(0, 0, 0);
+            return metrics;
         }
 
+        // Total planning duration
+        totalTimeCalculation(metrics, schedule);
+
+        // Efficiency percentage
+        efficiencyCalculation(metrics, schedule, technicians);
+
+        // parallelism rate
+        parallelismRateCalculation(metrics, schedule);
+
+        // Conflict detection
+        countConflicts(metrics, schedule);
+
+        // averageWaitTime
+        averageWaitTimeCalculation(metrics, schedule, samples);
+
+        // technician tilization
+        technicianUtilizationCalculation(metrics, schedule, technicians);
+
+        // lunch interruptions
+        lunchInterruptionsCalculation(metrics, schedule, technicians);
+
+        return metrics;
+    }
+
+    // ---------- Private helper methods ---------- //
+
+    private void totalTimeCalculation(
+            Metrics metrics,
+            List<ScheduleEntry> schedule) {
         // Total planning duration
         LocalTime firstStart = schedule.stream()
                 .map(ScheduleEntry::getStartTime)
@@ -60,43 +63,59 @@ public class MetricsCalculator {
                 .max(LocalTime::compareTo)
                 .orElseThrow();
 
-        long totalTime = Duration
+        metrics.setTotalTime(Duration
                 .between(firstStart, lastEnd)
-                .toMinutes();
-
-        /*
-         * Sum of all analysis durations
-         */
-        long totalAnalysisTime = schedule.stream()
-                .mapToLong(entry ->
-                        Duration.between(
-                                entry.getStartTime(),
-                                entry.getEndTime()
-                        ).toMinutes()
-                )
-                .sum();
-
-        /*
-         * Efficiency percentage
-         */
-        double efficiency = totalTime == 0 ? 0
-                : Math.round(
-                ((double) totalAnalysisTime / totalTime) * 10000
-        ) / 100.0;
-
-        /*
-         * Conflict detection
-         */
-        int conflicts = countConflicts(schedule);
-
-        return new Metrics(
-                totalTime,
-                efficiency,
-                conflicts
-        );
+                .toMinutes());
     }
 
-    // ---------- Private helper methods ---------- //
+    private void efficiencyCalculation(
+            Metrics metrics,
+            List<ScheduleEntry> schedule,
+            List<Technician> technicians) {
+
+        long totalTime = metrics.getTotalTime();
+        int technicianCount = technicians.size();
+
+        // Sum of all analysis durations
+        long totalOccupationTime = schedule.stream()
+                .mapToLong(ScheduleEntry::getDuration)
+                .sum();
+
+        if (totalTime == 0 || technicianCount == 0) {
+            metrics.setEfficiency(0.0);
+            return;
+        }
+
+        double efficiency = ((double) totalOccupationTime
+                / technicianCount
+                / totalTime
+        ) * 100;
+
+        metrics.setEfficiency(Math.round(efficiency * 100) / 100.0);
+    }
+
+    private void parallelismRateCalculation(Metrics metrics, List<ScheduleEntry> schedule) {
+        long totalTime = metrics.getTotalTime();
+
+        if (totalTime == 0) {
+
+            metrics.setParallelismRate(0.0);
+
+            return;
+        }
+
+        long totalOccupationTime = schedule.stream()
+                .mapToLong(ScheduleEntry::getDuration)
+                .sum();
+
+        double parallelismRate =
+                (double) totalOccupationTime
+                        / totalTime;
+
+        metrics.setParallelismRate(
+                Math.round(parallelismRate * 100) / 100.0
+        );
+    }
 
     /**
      * Counts scheduling conflicts in the generated planning.
@@ -112,9 +131,11 @@ public class MetricsCalculator {
      * </p>
      *
      * @param schedule generated planning schedule
-     * @return number of detected conflicts
      */
-    private int countConflicts(List<ScheduleEntry> schedule) {
+    private void countConflicts(
+            Metrics metrics,
+            List<ScheduleEntry> schedule
+    ) {
 
         int conflicts = 0;
 
@@ -154,7 +175,123 @@ public class MetricsCalculator {
             }
         }
 
-        return conflicts;
+        metrics.setConflicts(conflicts);
     }
 
+    private void averageWaitTimeCalculation(
+            Metrics metrics,
+            List<ScheduleEntry> schedule,
+            List<Sample> samples
+    ) {
+
+        long totalWaitTime = 0;
+
+        int processedSamplesCount = 0;
+
+        for (ScheduleEntry entry : schedule) {
+
+            Sample sample = samples.stream()
+                    .filter(s -> s.getId().equals(entry.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (sample != null) {
+                long waitTime = Duration.between(
+                        sample.getArrivalTime(),
+                        entry.getStartTime()
+                ).toMinutes();
+
+                totalWaitTime += Math.max(0, waitTime);
+
+                processedSamplesCount++;
+            }
+        }
+
+        if (processedSamplesCount == 0) {
+            metrics.setAverageWaitTime(0L);
+
+            return;
+        }
+
+        metrics.setAverageWaitTime(totalWaitTime / processedSamplesCount);
+    }
+
+    private void technicianUtilizationCalculation(
+            Metrics metrics,
+            List<ScheduleEntry> schedule,
+            List<Technician> technicians
+    ) {
+
+        long totalWorkedTime = schedule.stream()
+                .mapToLong(ScheduleEntry::getDuration)
+                .sum();
+
+        long totalAvailableTime = technicians.stream()
+                .mapToLong(t ->
+                        Duration.between(
+                                t.getStartTime(),
+                                t.getEndTime()
+                        ).toMinutes()
+                )
+                .sum();
+
+        if (totalAvailableTime == 0) {
+
+            metrics.setTechnicianUtilization(0.0);
+
+            return;
+        }
+
+        double utilization =
+                ((double) totalWorkedTime
+                        / totalAvailableTime) * 100;
+
+        metrics.setTechnicianUtilization(
+                Math.round(utilization * 100) / 100.0
+        );
+    }
+
+    private void lunchInterruptionsCalculation(
+            Metrics metrics,
+            List<ScheduleEntry> schedule,
+            List<Technician> technicians
+    ) {
+
+        int interruptions = 0;
+
+        for (ScheduleEntry entry : schedule) {
+
+            Technician technician = technicians.stream()
+                    .filter(t ->
+                            t.getId().equals(
+                                    entry.getTechnicianId()
+                            )
+                    )
+                    .findFirst()
+                    .orElse(null);
+
+            if (
+                    technician == null
+                            ||
+                            technician.getLunchBreak() == null
+            ) {
+                continue;
+            }
+
+            TimeSlot analysisSlot =
+                    new TimeSlot(
+                            entry.getStartTime(),
+                            entry.getEndTime()
+                    );
+
+            if (
+                    technician.getLunchBreak()
+                            .overlaps(analysisSlot)
+            ) {
+                interruptions++;
+            }
+        }
+
+        metrics.setLunchInterruptions(interruptions);
+    }
 }

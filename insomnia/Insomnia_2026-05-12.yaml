@@ -1,0 +1,922 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: lab-planner
+meta:
+  id: wrk_0e28f124f3a1461199ab5897d1896a2f
+  created: 1778493284244
+  modified: 1778493284244
+  description: ""
+collection:
+  - url: http://localhost:8080/api/planning
+    name: test 1 - Un Seul Échantillon
+    meta:
+      id: req_00cdacb169114d2b9e080744db562006
+      created: 1778493295570
+      modified: 1778581104739
+      isPrivate: false
+      description: ""
+      sortKey: -1778493295570
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "type": "BLOOD", 
+              "priority": "URGENT",
+              "analysisTime": 30,
+              "arrivalTime": "09:00",
+              "patientId": "P001"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001", 
+              "name": "Alice Martin",
+              "speciality": "BLOOD",
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "name": "Analyseur Sang A",
+              "type": "BLOOD", 
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 2 - Priorités STAT vs URGENT
+    meta:
+      id: req_1f856f46d24e4909b7dd0fb10dad50b3
+      created: 1778498017831
+      modified: 1778577089228
+      isPrivate: false
+      description: ""
+      sortKey: -1745396716912.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "type": "BLOOD",
+              "priority": "URGENT", 
+              "analysisTime": 45,
+              "arrivalTime": "09:00",
+              "patientId": "P001"
+            },
+            {
+              "id": "S002", 
+              "type": "BLOOD",
+              "priority": "STAT",
+              "analysisTime": 30,
+              "arrivalTime": "09:30",
+              "patientId": "P002"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001",
+              "speciality": "BLOOD", 
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "type": "BLOOD",
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 3 - Gestion des Ressources
+    meta:
+      id: req_8a730570273c4509a78769e12ba14e25
+      created: 1778498065939
+      modified: 1778574755088
+      isPrivate: false
+      description: ""
+      sortKey: -1728848427583.75
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001", 
+              "type": "BLOOD",
+              "priority": "URGENT",
+              "analysisTime": 60,
+              "arrivalTime": "09:00", 
+              "patientId": "P001"
+            },
+            {
+              "id": "S002",
+              "type": "URINE", 
+              "priority": "URGENT",
+              "analysisTime": 30,
+              "arrivalTime": "09:15",
+              "patientId": "P002" 
+            },
+            {
+              "id": "S003",
+              "type": "BLOOD",
+              "priority": "ROUTINE", 
+              "analysisTime": 45,
+              "arrivalTime": "09:00",
+              "patientId": "P003"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "T001",
+              "speciality": "BLOOD",
+              "startTime": "08:00", 
+              "endTime": "17:00"
+            },
+            {
+              "id": "T002", 
+              "speciality": "GENERAL",
+              "startTime": "08:00",
+              "endTime": "17:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "E001",
+              "type": "BLOOD",
+              "available": true
+            },
+            {
+              "id": "E002", 
+              "type": "URINE",
+              "available": true
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 1 - intermédiaire - Cas Simple (2 échantillons)
+    meta:
+      id: req_9133f0545f494c42bbbf4b3fc6bd655f
+      created: 1778578681253
+      modified: 1778581703693
+      isPrivate: false
+      description: ""
+      sortKey: -1720574282919.375
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Bilan lipidique",
+              "analysisTime": 30,
+              "arrivalTime": "09:00"
+            },
+            {
+              "id": "S002",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Numération complète",
+              "analysisTime": 45,
+              "arrivalTime": "09:15"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "TECH001",
+              "specialty": ["BLOOD", "CHEMISTRY"],
+              "efficiency": 1.0,
+              "startTime": "08:00",
+              "endTime": "17:00",
+              "lunchBreak": "12:00-13:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "EQ001",
+              "type": "BLOOD",
+              "capacity": 1,
+              "cleaningTime": 10
+            },
+            {
+              "id": "EQ002",
+              "type": "CHEMISTRY",
+              "capacity": 1,
+              "cleaningTime": 15
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 2 - intermédiaire - Priorité STAT (3 échantillons)
+    meta:
+      id: req_58003469070c4b579fa3d670b0e31ca6
+      created: 1778578724309
+      modified: 1778583494995
+      isPrivate: false
+      description: ""
+      sortKey: -1716437210587.1875
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisTime": 30,
+              "arrivalTime": "09:00"
+            },
+            {
+              "id": "S002",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisTime": 45,
+              "arrivalTime": "09:05"
+            },
+            {
+              "id": "S003",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisTime": 20,
+              "arrivalTime": "09:20"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "TECH001",
+              "specialty": ["BLOOD", "CHEMISTRY"],
+              "efficiency": 1.1
+            },
+            {
+              "id": "TECH002",
+              "specialty": ["CHEMISTRY", "IMMUNOLOGY"],
+              "efficiency": 1.0
+            }
+          ],
+        	"equipment": [
+            {
+              "id": "EQ001",
+              "type": "BLOOD",
+              "capacity": 1,
+              "cleaningTime": 10
+            },
+            {
+              "id": "EQ002",
+              "type": "CHEMISTRY",
+              "capacity": 1,
+              "cleaningTime": 15
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: test 3 - intermédiaire - Complexe avec Contraintes (4 échantillons)
+    meta:
+      id: req_5a072002633b4817b0bb192052cb2a60
+      created: 1778578767249
+      modified: 1778585638329
+      isPrivate: false
+      description: ""
+      sortKey: -1714368674421.0938
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "samples": [
+            {
+              "id": "S001",
+              "priority": "ROUTINE",
+              "type": "TISSUE",
+              "analysisTime": 60,
+              "arrivalTime": "11:30"
+            },
+            {
+              "id": "S002",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisTime": 35,
+              "arrivalTime": "11:45"
+            },
+            {
+              "id": "S003",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisTime": 40,
+              "arrivalTime": "12:15"
+            },
+            {
+              "id": "S004",
+              "priority": "URGENT",
+              "type": "TISSUE",
+              "analysisTime": 50,
+              "arrivalTime": "12:30"
+            }
+          ],
+          "technicians": [
+            {
+              "id": "TECH001",
+              "specialty": ["BLOOD", "CHEMISTRY"],
+              "efficiency": 1.2,
+              "lunchBreak": "12:00-13:00"
+            },
+            {
+              "id": "TECH002",
+              "specialty": ["MICROBIOLOGY", "IMMUNOLOGY"],
+              "efficiency": 1.0,
+              "lunchBreak": "12:30-13:30"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "EQ001",
+              "type": "BLOOD",
+              "capacity": 1,
+              "cleaningTime": 10
+            },
+            {
+              "id": "EQ002",
+              "type": "CHEMISTRY",
+              "capacity": 1,
+              "cleaningTime": 15
+            },
+            {
+              "id": "EQ003",
+              "type": "TISSUE",
+              "capacity": 1,
+              "cleaningTime": 20
+            }
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/planning
+    name: "[NON SUPPORTÉ ACTUELLEMENT] Données moyennes - jeu complet"
+    meta:
+      id: req_5fe25ced7d274df6b0247fc5eed0f50d
+      created: 1778584376203
+      modified: 1778590124497
+      isPrivate: false
+      description: ""
+      sortKey: -1713334406338.0469
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "laboratory": {
+            "name": "Laboratoire Central Médical",
+            "openingHours": "07:00-19:00",
+            "date": "2025-03-15"
+          },
+          "samples": [
+            {
+              "id": "S001",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisType": "Numération complète",
+              "analysisTime": 45,
+              "arrivalTime": "08:30",
+              "patientInfo": {
+                "age": 67,
+                "service": "Urgences",
+                "diagnosis": "Suspicion hémorragie"
+              }
+            },
+            {
+              "id": "S002",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Bilan hépatique",
+              "analysisTime": 35,
+              "arrivalTime": "08:45",
+              "patientInfo": {
+                "age": 42,
+                "service": "Gastroentérologie",
+                "diagnosis": "Hépatite virale"
+              }
+            },
+            {
+              "id": "S003",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Bilan lipidique",
+              "analysisTime": 30,
+              "arrivalTime": "09:00",
+              "patientInfo": {
+                "age": 58,
+                "service": "Médecine générale",
+                "diagnosis": "Contrôle cholestérol"
+              }
+            },
+            {
+              "id": "S004",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Hémogramme standard",
+              "analysisTime": 25,
+              "arrivalTime": "09:15",
+              "patientInfo": {
+                "age": 35,
+                "service": "Médecine du travail",
+                "diagnosis": "Visite systématique"
+              }
+            },
+            {
+              "id": "S005",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Coagulation",
+              "analysisTime": 25,
+              "arrivalTime": "09:30",
+              "patientInfo": {
+                "age": 73,
+                "service": "Chirurgie",
+                "diagnosis": "Pré-opératoire"
+              }
+            },
+            {
+              "id": "S006",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Vaccination contrôle",
+              "analysisTime": 35,
+              "arrivalTime": "10:00",
+              "patientInfo": {
+                "age": 22,
+                "service": "Médecine préventive",
+                "diagnosis": "Titre anticorps"
+              }
+            },
+            {
+              "id": "S007",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Conseil génétique",
+              "analysisTime": 120,
+              "arrivalTime": "10:30",
+              "patientInfo": {
+                "age": 28,
+                "service": "Consultation génétique",
+                "diagnosis": "Antécédents familiaux"
+              }
+            },
+            {
+              "id": "S008",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisType": "Troponine",
+              "analysisTime": 30,
+              "arrivalTime": "09:15",
+              "patientInfo": {
+                "age": 55,
+                "service": "Cardiologie",
+                "diagnosis": "Infarctus suspecté"
+              }
+            },
+            {
+              "id": "S009",
+              "priority": "URGENT",
+              "type": "URINE",
+              "analysisType": "ECBU",
+              "analysisTime": 50,
+              "arrivalTime": "10:15",
+              "patientInfo": {
+                "age": 29,
+                "service": "Urologie",
+                "diagnosis": "Infection urinaire"
+              }
+            },
+            {
+              "id": "S010",
+              "priority": "ROUTINE",
+              "type": "TISSUE",
+              "analysisType": "Prélèvement gorge",
+              "analysisTime": 45,
+              "arrivalTime": "11:15",
+              "patientInfo": {
+                "age": 19,
+                "service": "ORL",
+                "diagnosis": "Angine récidivante"
+              }
+            },
+            {
+              "id": "S011",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Caryotype urgent",
+              "analysisTime": 90,
+              "arrivalTime": "11:00",
+              "patientInfo": {
+                "age": 32,
+                "service": "Génétique médicale",
+                "diagnosis": "Syndrome chromosomique"
+              }
+            },
+            {
+              "id": "S012",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisType": "Hémoculture urgente",
+              "analysisTime": 60,
+              "arrivalTime": "10:45",
+              "patientInfo": {
+                "age": 34,
+                "service": "Réanimation",
+                "diagnosis": "Sepsis sévère"
+              }
+            },
+            {
+              "id": "S013",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "HbA1c",
+              "analysisTime": 25,
+              "arrivalTime": "12:00",
+              "patientInfo": {
+                "age": 52,
+                "service": "Endocrinologie",
+                "diagnosis": "Diabète type 2"
+              }
+            },
+            {
+              "id": "S014",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Sérologie HIV",
+              "analysisTime": 55,
+              "arrivalTime": "11:45",
+              "patientInfo": {
+                "age": 26,
+                "service": "Infectiologie",
+                "diagnosis": "Exposition VIH"
+              }
+            },
+            {
+              "id": "S015",
+              "priority": "ROUTINE",
+              "type": "URINE",
+              "analysisType": "Parasitologie",
+              "analysisTime": 40,
+              "arrivalTime": "12:15",
+              "patientInfo": {
+                "age": 40,
+                "service": "Médecine interne",
+                "diagnosis": "Troubles digestifs"
+              }
+            },
+            {
+              "id": "S016",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Frottis sanguin",
+              "analysisTime": 40,
+              "arrivalTime": "12:30",
+              "patientInfo": {
+                "age": 45,
+                "service": "Hématologie",
+                "diagnosis": "Leucémie suspectée"
+              }
+            },
+            {
+              "id": "S017",
+              "priority": "STAT",
+              "type": "BLOOD",
+              "analysisType": "Allergènes critiques",
+              "analysisTime": 40,
+              "arrivalTime": "13:20",
+              "patientInfo": {
+                "age": 8,
+                "service": "Pédiatrie",
+                "diagnosis": "Choc anaphylactique"
+              }
+            },
+            {
+              "id": "S018",
+              "priority": "URGENT",
+              "type": "BLOOD",
+              "analysisType": "Électrolytes",
+              "analysisTime": 20,
+              "arrivalTime": "14:15",
+              "patientInfo": {
+                "age": 81,
+                "service": "Gériatrie",
+                "diagnosis": "Déshydratation"
+              }
+            },
+            {
+              "id": "S019",
+              "priority": "ROUTINE",
+              "type": "BLOOD",
+              "analysisType": "Pharmacogénétique",
+              "analysisTime": 110,
+              "arrivalTime": "14:45",
+              "patientInfo": {
+                "age": 61,
+                "service": "Oncologie",
+                "diagnosis": "Adaptation traitement"
+              }
+            },
+            {
+              "id": "S020",
+              "priority": "URGENT",
+              "type": "TISSUE",
+              "analysisType": "Parasitologie",
+              "analysisTime": 65,
+              "arrivalTime": "15:30",
+              "patientInfo": {
+                "age": 12,
+                "service": "Pédiatrie",
+                "diagnosis": "Parasitose intestinale"
+              }
+            }
+          ],
+          "technicians": [
+            {
+              "id": "TECH001",
+              "name": "Alice Martin",
+              "specialty": ["BLOOD", "CHEMISTRY"],
+              "efficiency": 1.2,
+              "startTime": "07:00",
+              "endTime": "16:00",
+              "lunchBreak": "12:00-13:00"
+            },
+            {
+              "id": "TECH002",
+              "name": "Julien Dubois",
+              "specialty": ["MICROBIOLOGY", "IMMUNOLOGY"],
+              "efficiency": 1.1,
+              "startTime": "08:00",
+              "endTime": "17:00",
+              "lunchBreak": "12:30-13:30"
+            },
+            {
+              "id": "TECH003",
+              "name": "Sophie Bernard",
+              "specialty": ["CHEMISTRY", "IMMUNOLOGY"],
+              "efficiency": 1.0,
+              "startTime": "08:00",
+              "endTime": "17:00",
+              "lunchBreak": "12:00-13:00"
+            },
+            {
+              "id": "TECH004",
+              "name": "Lucas Petit",
+              "specialty": ["BLOOD", "GENETICS"],
+              "efficiency": 0.95,
+              "startTime": "09:00",
+              "endTime": "18:00",
+              "lunchBreak": "13:00-14:00"
+            },
+            {
+              "id": "TECH005",
+              "name": "Emma Rousseau",
+              "specialty": ["MICROBIOLOGY"],
+              "efficiency": 1.0,
+              "startTime": "07:00",
+              "endTime": "16:00",
+              "lunchBreak": "12:30-13:30"
+            },
+            {
+              "id": "TECH006",
+              "name": "Thomas Moreau",
+              "specialty": ["GENETICS", "IMMUNOLOGY"],
+              "efficiency": 0.9,
+              "startTime": "09:30",
+              "endTime": "18:30",
+              "lunchBreak": "13:30-14:30"
+            },
+            {
+              "id": "TECH007",
+              "name": "Camille Leroy",
+              "specialty": ["CHEMISTRY", "BLOOD", "IMMUNOLOGY"],
+              "efficiency": 1.05,
+              "startTime": "08:30",
+              "endTime": "17:30",
+              "lunchBreak": "12:00-13:00"
+            },
+            {
+              "id": "TECH008",
+              "name": "Antoine Garnier",
+              "specialty": ["BLOOD", "MICROBIOLOGY"],
+              "efficiency": 0.85,
+              "startTime": "10:00",
+              "endTime": "19:00",
+              "lunchBreak": "14:00-15:00"
+            }
+          ],
+          "equipment": [
+            {
+              "id": "EQ001",
+              "name": "Analyseur Hématologie XN-3000",
+              "type": "BLOOD",
+              "compatibleTypes": [
+                "Hémogramme",
+                "Numération",
+                "Coagulation",
+                "Frottis"
+              ],
+              "capacity": 2,
+              "maintenanceWindow": "06:00-07:00",
+              "cleaningTime": 10
+            },
+            {
+              "id": "EQ002",
+              "name": "Automate Biochimie Cobas 8000",
+              "type": "CHEMISTRY",
+              "compatibleTypes": [
+                "Bilan hépatique",
+                "Lipides",
+                "Électrolytes",
+                "Troponine",
+                "HbA1c"
+              ],
+              "capacity": 3,
+              "maintenanceWindow": "06:30-07:30",
+              "cleaningTime": 15
+            },
+            {
+              "id": "EQ003",
+              "name": "Station Microbiologie Vitek MS",
+              "type": "MICROBIOLOGY",
+              "compatibleTypes": [
+                "ECBU",
+                "Hémoculture",
+                "Parasitologie",
+                "Prélèvement gorge"
+              ],
+              "capacity": 2,
+              "maintenanceWindow": "07:00-08:00",
+              "cleaningTime": 20
+            },
+            {
+              "id": "EQ004",
+              "name": "Système Immunologie Liaison XL",
+              "type": "IMMUNOLOGY",
+              "compatibleTypes": [
+                "Sérologie",
+                "Allergènes",
+                "Vaccination",
+                "Titre anticorps"
+              ],
+              "capacity": 2,
+              "maintenanceWindow": "05:30-06:30",
+              "cleaningTime": 12
+            },
+            {
+              "id": "EQ005",
+              "name": "Séquenceur Génétique NextSeq",
+              "type": "GENETICS",
+              "compatibleTypes": [
+                "Caryotype",
+                "Conseil génétique",
+                "Pharmacogénétique"
+              ],
+              "capacity": 1,
+              "maintenanceWindow": "19:00-20:00",
+              "cleaningTime": 30
+            }
+          ],
+          "constraints": {
+            "maxProcessingTime": 720,
+            "priorityRules": [
+              "STAT",
+              "URGENT",
+              "ROUTINE"
+            ],
+            "contaminationPrevention": true,
+            "parallelProcessing": true
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_f3b17ff5f8e49d05c135c4b26d7d7f3ed7f1af04
+    created: 1778493284247
+    modified: 1778493284247
+environments:
+  name: Base Environment
+  meta:
+    id: env_f3b17ff5f8e49d05c135c4b26d7d7f3ed7f1af04
+    created: 1778493284246
+    modified: 1778493284246
+    isPrivate: false

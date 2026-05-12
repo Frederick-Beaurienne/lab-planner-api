@@ -10,7 +10,6 @@ import com.fred.labplanner.service.planning.scheduling.ResourceTimeline;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
@@ -59,7 +58,7 @@ public class PlanningService {
                 request.getEquipment()
         );
 
-        Metrics metrics = metricsCalculator.calculateMetrics(schedule);
+        Metrics metrics = metricsCalculator.calculateMetrics(schedule, request.getTechnicians(), request.getSamples());
 
         return new PlanningResponse(schedule, metrics);
     }
@@ -216,7 +215,6 @@ public class PlanningService {
 
         List<ScheduleEntry> schedule = new ArrayList<>();
 
-
         // Track next availability for each resource
         Map<String, ResourceTimeline> technicianTimelines = new HashMap<>();
         Map<String, ResourceTimeline> equipmentTimelines = new HashMap<>();
@@ -234,6 +232,15 @@ public class PlanningService {
                     technician.getId(),
                     timeline
             );
+
+            // Block lunch break
+            if (technician.getLunchBreak() != null) {
+
+                timeline.reserve(
+                        technician.getLunchBreak().getStart(),
+                        technician.getLunchBreak().getEnd()
+                );
+            }
         }
 
         // Initialize equipment availability
@@ -256,34 +263,32 @@ public class PlanningService {
             Equipment equipment = findCompatibleEquipment(
                     sample,
                     equipmentList,
-                    equipmentTimelines
+                    equipmentTimelines,
+                    technician
             );
 
+            // real time calcul
+            long effectiveDuration = calculateEffectiveDuration(sample, technician);
+
             // Calculate next available slot
-            /*LocalTime startTime = Collections.max(List.of(
-                    sample.getArrivalTime(),
-                    technicianTimelines.get(technician.getId()),
-                    equipmentTimelines.get(equipment.getId())
-            ));*/
             LocalTime startTime = Collections.max(List.of(
                     sample.getArrivalTime(),
                     technicianTimelines.get(technician.getId())
-                            .getNextAvailableTime(),
+                            .getNextAvailableTime(sample.getArrivalTime(), effectiveDuration),
                     equipmentTimelines.get(equipment.getId())
-                            .getNextAvailableTime()
+                            .getNextAvailableTime(sample.getArrivalTime(), effectiveDuration)
             ));
 
 
-            LocalTime endTime = startTime.plusMinutes(
-                    sample.getAnalysisTime()
-            );
+            LocalTime endTime = startTime.plusMinutes(effectiveDuration);
 
-            // Block resources
+            // Block resources including cleaning time
             technicianTimelines.get(technician.getId())
                     .reserve(startTime, endTime);
 
             equipmentTimelines.get(equipment.getId())
-                    .reserve(startTime, endTime);
+                    .reserve(startTime,
+                            endTime.plusMinutes(equipment.getCleaningTime()));
 
             // Add planning entry
             schedule.add(
@@ -293,7 +298,9 @@ public class PlanningService {
                             equipment.getId(),
                             startTime,
                             endTime,
-                            sample.getPriority()
+                            sample.getPriority(),
+                            effectiveDuration,
+                            technician.getEfficiency()
                     )
             );
         }
@@ -325,9 +332,9 @@ public class PlanningService {
      * technicians.
      * </p>
      *
-     * @param sample       sample to process
-     * @param technicians  available laboratory technicians
-     * @param timelines technicians timelines associated with each equipment
+     * @param sample      sample to process
+     * @param technicians available laboratory technicians
+     * @param timelines   technicians timelines associated with each equipment
      * @return the most suitable available technician
      * @throws RuntimeException if no compatible technician exists
      * @throws RuntimeException if no compatible technician is available
@@ -343,10 +350,11 @@ public class PlanningService {
         List<Technician> compatibleTechnicians = technicians.stream()
 
                 .filter(technician ->
-                        technician.getSpeciality().name().equals(sample.getType().name())
+                        technician.resolveAnalysisCategories().contains(
+                                sample.resolveAnalysisCategory())
                                 ||
-                                technician.getSpeciality()
-                                        == ETechnicianSpeciality.GENERAL
+                                technician.getSpecialty().contains(
+                                        ETechnicianSpeciality.GENERAL)
                 )
                 .toList();
 
@@ -360,17 +368,17 @@ public class PlanningService {
         // Keep only technicians available during working hours
         return compatibleTechnicians.stream()
 
-                .filter(technician ->
-                        !timelines.get(technician.getId())
-                                .getNextAvailableTime()
-                                .plusMinutes(sample.getAnalysisTime())
-                                .isAfter(technician.getEndTime())
+                .filter(technician -> !timelines
+                        .get(technician.getId())
+                        .getNextAvailableTime(sample.getArrivalTime(), calculateEffectiveDuration(sample, technician))
+                        .plusMinutes(calculateEffectiveDuration(sample, technician))
+                        .isAfter(technician.getEndTime())
                 )
                 .min(
                         Comparator.comparing(
-                                technician ->
-                                        timelines.get(technician.getId())
-                                                .getNextAvailableTime()
+                                technician -> timelines
+                                        .get(technician.getId())
+                                        .getNextAvailableTime(sample.getArrivalTime(), calculateEffectiveDuration(sample, technician))
                         )
                 )
                 .orElseThrow(() ->
@@ -398,27 +406,27 @@ public class PlanningService {
      *
      * @param sample        sample to process
      * @param equipmentList available laboratory equipment
-     * @param timelines resource timelines associated with each equipment
+     * @param timelines     resource timelines associated with each equipment
      * @return the most suitable available equipment
      * @throws RuntimeException if no compatible equipment is found
      */
     private Equipment findCompatibleEquipment(
             Sample sample,
             List<Equipment> equipmentList,
-            Map<String, ResourceTimeline> timelines
+            Map<String, ResourceTimeline> timelines,
+            Technician technician
     ) {
 
         return equipmentList.stream()
 
                 .filter(Equipment::isAvailable)
-                .filter(equipment ->
-                        equipment.getType().name()
-                                .equals(sample.getType().name())
+                .filter(equipment -> equipment
+                        .resolveAnalysisCategory() == sample.resolveAnalysisCategory()
                 )
                 .min(
-                        Comparator.comparing(
-                                equipment -> timelines.get(equipment.getId())
-                                        .getNextAvailableTime()
+                        Comparator.comparing(equipment -> timelines
+                                .get(equipment.getId())
+                                .getNextAvailableTime(sample.getArrivalTime(), calculateEffectiveDuration(sample, technician))
                         )
                 )
                 .orElseThrow(() ->
@@ -428,4 +436,13 @@ public class PlanningService {
                 );
     }
 
+    private long calculateEffectiveDuration(
+            Sample sample,
+            Technician technician
+    ) {
+        return Math.round(
+                sample.getAnalysisTime()
+                        / technician.getEfficiency()
+        );
+    }
 }

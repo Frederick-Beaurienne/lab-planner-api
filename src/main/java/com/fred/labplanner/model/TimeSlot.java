@@ -1,4 +1,9 @@
-package com.fred.labplanner.service.planning.scheduling;
+package com.fred.labplanner.model;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fred.labplanner.json.deserializer.TimeSlotDeserializer;
+import com.fred.labplanner.json.serializer.TimeSlotSerializer;
 
 import java.time.LocalTime;
 
@@ -17,10 +22,13 @@ import java.time.LocalTime;
  * and resource conflicts.
  * </p>
  */
+@JsonSerialize(using = TimeSlotSerializer.class)
 public class TimeSlot {
 
     private LocalTime start;
     private LocalTime end;
+
+    // ---------- CONSTRUCTORS ---------- //
 
     public TimeSlot() {
     }
@@ -30,15 +38,41 @@ public class TimeSlot {
         this.end = end;
     }
 
+    // ---------- GETTERS AND SETTERS ---------- //
+
     public LocalTime getStart() {
         return start;
+    }
+
+    public void setStart(LocalTime start) {
+        this.start = start;
     }
 
     public LocalTime getEnd() {
         return end;
     }
 
+    public void setEnd(LocalTime end) {
+        this.end = end;
+    }
+
+    // ---------- TO STRING ---------- //
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(start);
+        sb.append("-").append(end);
+        return sb.toString();
+    }
+
     // ---------- CLASS METHODE ---------- //
+
+    @JsonCreator
+    public static TimeSlot fromString(String value) {
+
+        return TimeSlotDeserializer.deserialize(value);
+    }
 
     /**
      * Checks whether this time slot overlaps another time slot.
@@ -49,7 +83,6 @@ public class TimeSlot {
      * </p>
      *
      * @param other time slot to compare with
-     *
      * @return {@code true} if the two time slots overlap,
      * {@code false} otherwise
      */

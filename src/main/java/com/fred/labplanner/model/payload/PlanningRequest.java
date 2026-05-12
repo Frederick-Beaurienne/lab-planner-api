@@ -20,6 +20,8 @@ public class PlanningRequest {
   @NotEmpty
   private List<@Valid Equipment> equipment = new ArrayList<>();
 
+  // ---------- CONSTRUCTORS ---------- //
+
   public PlanningRequest() {
   }
 
@@ -28,6 +30,8 @@ public class PlanningRequest {
     this.technicians = technicians;
     this.equipment = equipment;
   }
+
+  // ---------- GETTERS AND SETTERS ---------- //
 
   public List<Sample> getSamples() {
     return samples;
@@ -52,6 +56,8 @@ public class PlanningRequest {
   public void setEquipment(List<Equipment> equipment) {
     this.equipment = equipment;
   }
+
+  // ---------- TO STRING ---------- //
 
   @Override
   public String toString() {
